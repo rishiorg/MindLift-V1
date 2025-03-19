@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene - AI Mental Wellness Companion</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    
+    <!-- Particles.js for background effects -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/modern-styles.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black text-white font-['Poppins']">
+    <!-- 3D Background Canvas -->
+    <canvas id="bg-canvas" class="fixed top-0 left-0 w-full h-full -z-10"></canvas>
+    
+    <!-- Particles Background -->
+    <div id="particles-js" class="fixed top-0 left-0 w-full h-full -z-5 opacity-40"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/30 border-b border-white/10">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg transform rotate-45 animate-pulse"></div>
+                    <div class="absolute inset-1 bg-black rounded-lg transform rotate-45"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">S</span>
+                    </div>
+                </div>
+                <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">Serene</span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#" class="nav-link active" data-section="home">Home</a>
+                <a href="#" class="nav-link" data-section="features">Features</a>
+                <a href="#" class="nav-link" data-section="about">About</a>
+                <a href="#" class="nav-link" data-section="team">Team</a>
+                <a href="https://rishiorg.github.io/mindlift2/" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium">
+                    Diagnosis
+                </a>
+                <a href="chat.html" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium">
+                    Start Chat
+                </a>
+            </div>
+            
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-md border-b border-white/10">
+            <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+                <a href="#" class="block py-2 nav-link active" data-section="home">Home</a>
+                <a href="#" class="block py-2 nav-link" data-section="features">Features</a>
+                <a href="#" class="block py-2 nav-link" data-section="about">About</a>
+                <a href="#" class="block py-2 nav-link" data-section="team">Team</a>
+                <a href="chat.html" class="block py-3 text-center bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium">
+                    Start Chat
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="container mx-auto px-6 py-12 flex flex-col md:flex-row items-center">
+            <div class="flex flex-col space-y-8 md:w-1/2 z-10">
+                <div class="flex items-center space-x-2">
+                    <span class="px-4 py-1 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium">AI-Powered Mental Wellness</span>
+                    <div class="h-1 w-1 rounded-full bg-purple-400"></div>
+                    <span class="text-purple-300 text-sm">24/7 Support</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight">
+                    <span class="block">Your Personal</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-teal-400">
+                        Mental Wellness
+                    </span>
+                    <span class="block">AI Companion</span>
+                </h1>
+                
+                <p class="text-gray-300 text-lg max-w-lg">
+                    Serene uses advanced AI to provide personalized mental health support, 
+                    emotional analysis, and evidence-based wellness techniques whenever you need them.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="chat.html" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium text-center">
+                        Start Chatting Now
+                    </a>
+                    <a href="#features" class="px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition duration-300 font-medium text-center">
+                        Learn More
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex -space-x-2">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full border-2 border-gray-900" alt="User">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-10 h-10 rounded-full border-2 border-gray-900" alt="User">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" class="w-10 h-10 rounded-full border-2 border-gray-900" alt="User">
+                        <div class="w-10 h-10 rounded-full border-2 border-gray-900 bg-purple-600 flex items-center justify-center text-xs font-medium">
+                            +2k
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-300">
+                        <span class="font-medium text-white">2,000+ users</span> trust Serene with their mental wellness journey
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md:w-1/2 mt-12 md:mt-0 relative z-10">
+                <!-- 3D Brain Model Container -->
+                <div id="brain-model" class="relative w-full h-96 md:h-[500px] brain-container">
+                    <!-- Placeholder until 3D model loads -->
+                    <div class="absolute inset-0 flex items-center justify-center brain-placeholder">
+                        <div class="w-40 h-40 rounded-full bg-gradient-to-r from-purple-500/30 to-blue-500/30 blur-2xl animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- Floating UI Elements -->
+                <div class="absolute top-1/4 left-0 transform -translate-x-1/2 p-4 rounded-xl bg-gray-900/80 backdrop-blur-md border border-white/10 shadow-xl floating-card">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium">Mental Health Score</div>
+                            <div class="text-green-400 font-bold">92% Positive</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-1/4 right-0 transform translate-x-1/2 p-4 rounded-xl bg-gray-900/80 backdrop-blur-md border border-white/10 shadow-xl floating-card">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                            <i class="fas fa-heart-pulse"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium">Emotional Balance</div>
+                            <div class="text-blue-400 font-bold">Harmonized</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Wave Separator -->
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-24 md:h-32">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-gray-900"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-900 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Advanced Features</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Serene combines cutting-edge AI technology with evidence-based mental health practices 
+                    to provide personalized support for your emotional well-being.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-comments text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Intelligent Conversations</h3>
+                    <p class="text-gray-400">
+                        Chat with an AI that understands emotional context and provides thoughtful, personalized responses based on your unique situation.
+                    </p>
+                    <div class="mt-6 h-1 w-12 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all duration-500"></div>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Sentiment Analysis</h3>
+                    <p class="text-gray-400">
+                        Advanced algorithms analyze your emotional state through text and voice, helping you gain insights into your mental well-being patterns.
+                    </p>
+                    <div class="mt-6 h-1 w-12 bg-gradient-to-r from-blue-500 to-teal-500 group-hover:w-full transition-all duration-500"></div>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-teal-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/10 group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-600 to-green-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-brain text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Evidence-Based Techniques</h3>
+                    <p class="text-gray-400">
+                        Access proven mental wellness strategies from CBT, mindfulness, and positive psychology to help manage stress and improve well-being.
+                    </p>
+                    <div class="mt-6 h-1 w-12 bg-gradient-to-r from-teal-500 to-green-500 group-hover:w-full transition-all duration-500"></div>
+                </div>
+            </div>
+            
+            <!-- 3D Feature Showcase -->
+            <div class="mt-24 relative">
+                <div class="absolute -top-40 -left-40 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl"></div>
+                
+                <div class="bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-8 md:p-12 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h3 class="text-2xl md:text-3xl font-bold mb-6">Voice Emotion Recognition</h3>
+                            <p class="text-gray-400 mb-6">
+                                Serene can analyze your voice to detect emotional patterns, helping you understand your feelings
+                                even when you can't find the right words to express them.
+                            </p>
+                            <ul class="space-y-4">
+                                <li class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 mt-0.5">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-300">Detects 7 core emotional states</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 mt-0.5">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-300">Provides real-time feedback</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 mt-0.5">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-300">Suggests personalized coping strategies</span>
+                                </li>
+                            </ul>
+                            <div class="mt-8">
+                                <a href="chat.html" class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium">
+                                    <span>Try Voice Chat</span>
+                                    <i class="fas fa-microphone"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="voice-wave-container" class="h-64 md:h-80 relative">
+                            <!-- 3D Voice Wave Visualization will be rendered here -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-full h-full voice-wave-placeholder">
+                                    <div class="flex items-end justify-around h-full px-2">
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                        <div class="wave-bar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 relative">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-gray-900 to-black -z-10"></div>
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Mission</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    We're dedicated to making mental health support accessible to everyone, 
+                    combining technology with compassion to create a more emotionally balanced world.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                        The Science Behind Serene
+                    </h3>
+                    <p class="text-gray-300 mb-6">
+                        Serene is built on a foundation of evidence-based psychological principles, 
+                        advanced natural language processing, and emotional intelligence algorithms.
+                    </p>
+                    <p class="text-gray-300 mb-6">
+                        Our team of psychologists, AI researchers, and mental health advocates work together 
+                        to create a platform that truly understands human emotions and provides meaningful support.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mt-8">
+                        <div class="bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-purple-400 mb-2">98%</div>
+                            <div class="text-sm text-gray-400">User satisfaction rate</div>
+                        </div>
+                        <div class="bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-blue-400 mb-2">24/7</div>
+                            <div class="text-sm text-gray-400">Continuous support</div>
+                        </div>
+                        <div class="bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-teal-400 mb-2">200+</div>
+                            <div class="text-sm text-gray-400">Mental health resources</div>
+                        </div>
+                        <div class="bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-green-400 mb-2">85%</div>
+                            <div class="text-sm text-gray-400">Improved well-being</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 lg:order-2">
+                    <div id="neuron-network" class="h-80 md:h-96 w-full relative">
+                        <!-- 3D Neural Network Visualization will be rendered here -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-full neuron-network-placeholder">
+                                <div class="w-full h-full rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 overflow-hidden relative">
+                                    <div class="neuron-particles"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-20 bg-gray-900 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">The Team Behind Serene</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Our diverse team of experts is passionate about mental health innovation and making a positive impact.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="team-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 group">
+                    <div class="relative mb-6 overflow-hidden rounded-xl aspect-square">
+                        <img src="./assets/images/rishi.jpg" alt="Dr. Sarah Johnson" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+                        <div class="absolute bottom-0 left-0 w-full p-4">
+                            <div class="flex space-x-2">
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-linkedin-in text-sm"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-twitter text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1">Rishiraj Dutta</h3>
+                    <p class="text-purple-400 text-sm mb-3">AI, Blockchain, Web3 Developer</p>
+                    <p class="text-gray-400 text-sm">
+                        Specializes in AI, blockchain, and Web3 development with a focus on creating innovative solutions for mental health.
+                    </p>
+                </div>
+                
+                <!-- Team Member 2 -->
+                <div class="team-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 group">
+                    <div class="relative mb-6 overflow-hidden rounded-xl aspect-square">
+                        <img src="./assets/images/IMG_7244.JPG" alt="Alex Chen" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+                        <div class="absolute bottom-0 left-0 w-full p-4">
+                            <div class="flex space-x-2">
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-blue-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-linkedin-in text-sm"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-blue-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-github text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1">Gaurav Yadav</h3>
+                    <p class="text-blue-400 text-sm mb-3">AI Research Lead </p>
+                    <p class="text-gray-400 text-sm">
+                        Researcher with expertise in natural language processing and emotion recognition.
+                    </p>
+                </div>
+                
+                <!-- Team Member 3 -->
+                <div class="team-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-teal-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/10 group">
+                    <div class="relative mb-6 overflow-hidden rounded-xl aspect-square">
+                        <img src="./assets/images/saurabh.jpg" alt="Maya Patel" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+                        <div class="absolute bottom-0 left-0 w-full p-4">
+                            <div class="flex space-x-2">
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-teal-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-linkedin-in text-sm"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-teal-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-dribbble text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1">Saurabh Dev</h3>
+                    <p class="text-teal-400 text-sm mb-3">Front-end Developer and UX/UI Designer</p>
+                    <p class="text-gray-400 text-sm">
+                        Award-winning designer focused on creating accessible and emotionally resonant digital experiences.
+                    </p>
+                </div>
+                
+                <!-- Team Member 4 -->
+                <div class="team-card bg-gray-800/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-green-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 group">
+                    <div class="relative mb-6 overflow-hidden rounded-xl aspect-square">
+                        <img src="./assets/images/anmol-removebg-preview.png" alt="Dr. Marcus Williams" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+                        <div class="absolute bottom-0 left-0 w-full p-4">
+                            <div class="flex space-x-2">
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-green-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fab fa-linkedin-in text-sm"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-white/10 hover:bg-green-500/80 flex items-center justify-center transition duration-300">
+                                    <i class="fas fa-globe text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1">Anmol Joshi</h3>
+                    <p class="text-green-400 text-sm mb-3">Full-Stack Developer</p>
+                    <p class="text-gray-400 text-sm">
+                        Specializes Full-Stack Development with a focus on creating innovative solutions for mental health.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-gray-900 to-black -z-10"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-3xl"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-gradient-to-r from-purple-900/50 to-blue-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-8 md:p-12 shadow-xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-4">Start Your Mental Wellness Journey Today</h2>
+                        <p class="text-gray-300 max-w-2xl mx-auto">
+                            Take the first step toward better mental health with Serene's AI-powered support system.
+                            It's free, confidential, and available whenever you need it.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                        <a href="chat.html" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg hover:shadow-purple-500/30 transition duration-300 font-medium text-center">
+                            Start Chatting Now
+                        </a>
+                        <a href="#features" class="px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition duration-300 font-medium text-center">
+                            Learn More
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8 text-center text-gray-400 text-sm">
+                        <p>Your privacy is our priority. All conversations are confidential and secure.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-white/10 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg transform rotate-45"></div>
+                            <div class="absolute inset-1 bg-gray-900 rounded-lg transform rotate-45"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">S</span>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">Serene</span>
+                    </div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        Serene combines AI technology with mental health expertise to provide personalized support
+                        for emotional well-being, available 24/7 wherever you are.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-500/80 flex items-center justify-center transition duration-300">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Home</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-purple-400 transition duration-300">Features</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-purple-400 transition duration-300">About</a></li>
+                        <li><a href="#team" class="text-gray-400 hover:text-purple-400 transition duration-300">Team</a></li>
+                        <li><a href="chat.html" class="text-gray-400 hover:text-purple-400 transition duration-300">Chat Now</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Mental Health Tips</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Research</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 mt-12 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Serene AI. All rights reserved to Rishiraj Dutta, Gaurav, Saurabh Dev, Anmol Joshi.</p>
+                <p class="mt-2">Disclaimer: Serene is not a replacement for professional mental health care.
+                    <br>Just Joking Fuck the Doctors and Psychiatrists use Serene AI
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Scripts -->
+    <script src="js/animations.js"></script>
+    <script src="js/api-mock.js"></script>
+</body>
+</html>

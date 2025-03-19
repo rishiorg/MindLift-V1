@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindLift - Mental Health Assessment</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Chart.js plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Tilt.js for 3D hover effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Web3Forms -->
+    <script src="https://web3forms.com/client/script.js" async defer></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#e6f9ff',
+                            100: '#ccf3ff',
+                            200: '#99e7ff',
+                            300: '#66dbff',
+                            400: '#33cfff',
+                            500: '#00c3ff',
+                            600: '#009ccc',
+                            700: '#007599',
+                            800: '#004e66',
+                            900: '#002733',
+                        },
+                        secondary: {
+                            50: '#f0f0ff',
+                            100: '#e0e0ff',
+                            200: '#c1c2ff',
+                            300: '#a3a3ff',
+                            400: '#8485ff',
+                            500: '#6566ff',
+                            600: '#5151cc',
+                            700: '#3d3d99',
+                            800: '#292966',
+                            900: '#141433',
+                        },
+                        accent: {
+                            100: '#f0fdfa',
+                            200: '#c6fef8',
+                            300: '#9cfef1',
+                            400: '#72feea',
+                            500: '#49fee3',
+                            600: '#3acbb6',
+                            700: '#2c9989',
+                            800: '#1d665c',
+                            900: '#0f332e',
+                        },
+                        dark: {
+                            800: '#13151a',
+                            850: '#10121a',
+                            900: '#0c0e14',
+                            950: '#08090f',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-fast': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                        'scan': 'scan 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        glow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(0, 195, 255, 0.6)' },
+                            '50%': { boxShadow: '0 0 30px rgba(0, 195, 255, 0.9)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        },
+                        scan: {
+                            '0%, 100%': { transform: 'translateY(-100%)' },
+                            '50%': { transform: 'translateY(100%)' },
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #08090f;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(101, 102, 255, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(0, 195, 255, 0.1) 0%, transparent 30%);
+            overflow-x: hidden;
+        }
+        
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #00c3ff, #6566ff, #49fee3, #00c3ff);
+            background-size: 400% 100%;
+            animation: shimmer 10s linear infinite;
+            z-index: -1;
+        }
+        
+        .glassmorphism {
+            background: rgba(13, 15, 20, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cyber-button {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+        }
+        
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+        
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+        
+        .cyber-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #00c3ff, #6566ff);
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 195, 255, 0.7);
+        }
+        
+        .cyber-button:active {
+            transform: translateY(1px);
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            background: rgba(13, 15, 20, 0.8);
+            overflow: hidden;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 195, 255, 0.3);
+        }
+        
+        .option-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, #00c3ff, #6566ff);
+            transition: width 0.3s ease;
+        }
+        
+        .option-card:hover::after {
+            width: 100%;
+        }
+        
+        .option-card.selected {
+            border-color: rgba(0, 195, 255, 0.7);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.5);
+            transform: translateY(-5px) scale(1.02);
+        }
+        
+        .option-card.selected::after {
+            width: 100%;
+        }
+        
+        .progress-bar-container {
+            position: relative;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00c3ff, #6566ff);
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: scan 2s ease-in-out infinite;
+        }
+        
+        .chart-background {
+            background-color: rgba(13, 15, 20, 0.6);
+            border-radius: 12px;
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(101, 102, 255, 0.1) 0%, transparent 50%);
+            animation: pulse-slow 8s infinite;
+        }
+        
+        .custom-tooltip {
+            background: rgba(13, 15, 20, 0.9) !important;
+            border: 1px solid rgba(0, 195, 255, 0.3) !important;
+            border-radius: 6px !important;
+            color: white !important;
+            font-family: 'Rajdhani', sans-serif !important;
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.1) !important;
+        }
+        
+        .radar-chart-wrapper {
+            position: relative;
+        }
+        
+        .radar-chart-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30%;
+            height: 30%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(0, 195, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse-slow 4s infinite;
+        }
+        
+        @keyframes scan-line {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 195, 255, 0.5), 
+                rgba(0, 195, 255, 0.8), 
+                rgba(0, 195, 255, 0.5), 
+                transparent);
+            z-index: 1;
+            animation: scan-line 2s linear infinite;
+        }
+        
+        .pdf-preview {
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(13, 15, 20, 0.9);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 195, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="font-rajdhani bg-dark-950 text-gray-100 min-h-screen overflow-x-hidden">
+    <div id="canvas-container"></div>
+    <div id="particles-js" class="fixed inset-0 z-0 opacity-30"></div>
+    
+    <header class="sticky top-0 z-50 glassmorphism">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <div class="text-primary-500 text-3xl transition-transform duration-500 group-hover:rotate-12 animate-pulse-slow">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h1 class="font-orbitron font-bold text-2xl tracking-wider">
+                    MIND<span class="text-primary-400">LIFT</span>
+                </h1>
+            </a>
+            
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="font-medium relative after:absolute after:bottom-[-5px] after:left-0 after:h-[2px] after:w-0 after:bg-primary-400 hover:after:w-full after:transition-all after:duration-300 hover:text-primary-300 transition-colors">About</a>
+                <a href="#resources" class="font-medium relative after:absolute after:bottom-[-5px] after:left-0 after:h-[2px] after:w-0 after:bg-primary-400 hover:after:w-full after:transition-all after:duration-300 hover:text-primary-300 transition-colors">Resources</a>
+                <button id="theme-toggle" class="p-2 rounded-full bg-dark-800 hover:bg-dark-800 transition-colors text-gray-200 border border-gray-700 hover:border-primary-500">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+            
+            <button class="md:hidden text-2xl" id="mobile-menu-button">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden glassmorphism absolute w-full py-4 px-6 transition-all duration-300">
+            <div class="flex flex-col space-y-4">
+                <a href="#about" class="font-medium py-2 hover:text-primary-400 transition-colors">About</a>
+                <a href="#resources" class="font-medium py-2 hover:text-primary-400 transition-colors">Resources</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="landing-container" class="min-h-[85vh] flex items-center justify-center py-16 px-4 relative overflow-hidden">
+        <div id="banner-image" class="container mx-auto flex justify-center items-center">
+            <main>
+                <section id="quiz-box" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" class="glassmorphism neon-border rounded-2xl max-w-2xl p-10 text-center animate-float">
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-500/5 to-secondary-500/5 z-[-1]"></div>
+                    <div id="quiz-box-text">
+                        <div class="flex justify-center mb-6">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 flex items-center justify-center text-4xl animate-pulse-slow shadow-lg relative">
+                                <div class="absolute inset-0 rounded-full bg-primary-500/20 animate-ping"></div>
+                                <i class="fas fa-brain"></i>
+                            </div>
+                        </div>
+                        <h1 class="font-orbitron font-bold text-4xl md:text-5xl mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary-300 to-secondary-400 tracking-wider">NEURAL ASSESSMENT</h1>
+                        <h2 class="text-xl md:text-2xl font-medium text-gray-200 mb-6">Discover your mental landscape with our advanced analysis</h2>
+                        <p class="text-gray-300 mb-8 max-w-md mx-auto">This comprehensive assessment uses clinically validated screening tools to map potential mental health patterns. All data is processed locally in your browser for complete privacy.</p>
+                    </div>
+                    <button id="yes" class="cyber-button px-8 py-4 rounded-full bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-orbitron text-lg shadow-xl group relative overflow-hidden">
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            INITIATE ASSESSMENT
+                            <i class="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                        </span>
+                    </button>
+                </section>
+            </main>
+        </div>
+        
+        <!-- Animated elements in background -->
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary-500/10 rounded-full filter blur-3xl opacity-30 animate-pulse-slow"></div>
+        <div class="absolute top-20 right-20 w-80 h-80 bg-secondary-500/10 rounded-full filter blur-3xl opacity-30 animate-pulse-slow"></div>
+        <div class="absolute top-40 left-1/4 w-40 h-40 bg-accent-500/10 rounded-full filter blur-3xl opacity-30 animate-pulse-slow"></div>
+    </div>
+
+    <main id="main-content" class="container mx-auto px-6 py-16 relative z-10">
+        <!-- Content will be dynamically inserted here -->
+    </main>
+
+    <footer class="glassmorphism mt-16">
+        <div class="container mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <section>
+                    <div class="flex items-center mb-4">
+                        <div class="text-primary-500 text-2xl mr-3">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary-400 font-orbitron">DISCLAIMER</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4 leading-relaxed">This assessment tool uses validated screening instruments but should not replace professional mental health evaluation. Always consult with qualified healthcare providers for diagnosis and treatment.</p>
+                    <p class="text-gray-400 text-sm">
+                        Created by 
+                        <span class="text-primary-400 font-semibold">
+                            MindLift Mental Health Solutions
+                        </span> 
+                    </p>
+                </section>
+                
+                <div>
+                    <h3 class="text-xl font-semibold text-primary-400 mb-4 font-orbitron flex items-center">
+                        <i class="fas fa-link mr-3 text-primary-500"></i>
+                        MENTAL HEALTH RESOURCES
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="https://www.nimh.nih.gov" target="_blank" class="group text-gray-300 hover:text-primary-300 transition-colors flex items-center gap-2 bg-dark-900/50 p-2 rounded-md border border-gray-800 hover:border-primary-500">
+                            <i class="fas fa-external-link-alt text-xs text-primary-400"></i>
+                            <span class="group-hover:translate-x-1 transition-transform">National Institute of Mental Health</span>
+                        </a>
+                        <a href="https://www.samhsa.gov" target="_blank" class="group text-gray-300 hover:text-primary-300 transition-colors flex items-center gap-2 bg-dark-900/50 p-2 rounded-md border border-gray-800 hover:border-primary-500">
+                            <i class="fas fa-external-link-alt text-xs text-primary-400"></i>
+                            <span class="group-hover:translate-x-1 transition-transform">SAMHSA</span>
+                        </a>
+                        <a href="https://988lifeline.org" target="_blank" class="group text-gray-300 hover:text-primary-300 transition-colors flex items-center gap-2 bg-dark-900/50 p-2 rounded-md border border-gray-800 hover:border-primary-500">
+                            <i class="fas fa-external-link-alt text-xs text-primary-400"></i>
+                            <span class="group-hover:translate-x-1 transition-transform">988 Suicide & Crisis Lifeline</span>
+                        </a>
+                        <a href="https://mhanational.org" target="_blank" class="group text-gray-300 hover:text-primary-300 transition-colors flex items-center gap-2 bg-dark-900/50 p-2 rounded-md border border-gray-800 hover:border-primary-500">
+                            <i class="fas fa-external-link-alt text-xs text-primary-400"></i>
+                            <span class="group-hover:translate-x-1 transition-transform">Mental Health America</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Email Modal -->
+    <div id="email-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/70">
+        <div class="glassmorphism neon-border rounded-xl max-w-md w-full p-6 relative" data-tilt data-tilt-max="5" data-tilt-speed="400">
+            <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 class="text-2xl font-orbitron mb-4 text-primary-400">Send Your Report</h2>
+            
+            <div class="mb-4">
+                <div class="pdf-preview p-4 mb-4" id="pdf-preview">
+                    <div class="flex justify-center items-center h-20 text-gray-400">
+                        <i class="fas fa-file-pdf text-2xl mr-2"></i>
+                        <span>PDF Preview Loading...</span>
+                    </div>
+                </div>
+                
+                <form id="email-form" class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-200 mb-1">Email Address</label>
+                        <input type="email" id="email" name="email" required
+                               class="w-full px-4 py-2 bg-dark-800 border border-gray-700 focus:border-primary-500 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                               placeholder="your@email.com">
+                    </div>
+                    
+                    <input type="hidden" name="access_key" value="4c7f9a0f-9eab-49a4-94e1-4f7650aac761">
+                    <input type="hidden" name="from_name" value="MindLift Mental Health Solutions">
+                    <input type="hidden" name="subject" value="Your Mental Health Assessment Report">
+                    <input type="hidden" name="message" id="email-message">
+                    <input type="hidden" name="attachment" id="pdf-attachment">
+                    
+                    <button type="submit" class="cyber-button w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold rounded-md hover:from-primary-500 hover:to-secondary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 flex justify-center items-center">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success notification -->
+    <div id="success-notification" class="fixed bottom-4 right-4 bg-accent-600 text-white p-4 rounded-lg shadow-lg z-50 hidden flex items-center">
+        <i class="fas fa-check-circle text-xl mr-3"></i>
+        <div>
+            <p class="font-semibold">Success!</p>
+            <p>Your report has been sent to your email.</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Particles.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Particles.js
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#00c3ff" },
+                    shape: {
+                        type: "circle",
+                        stroke: { width: 0, color: "#000000" },
+                        polygon: { nb_sides: 5 }
+                    },
+                    opacity: {
+                        value: 0.3,
+                        random: true,
+                        anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+                    },
+                    size: {
+                        value: 3,
+                        random: true,
+                        anim: { enable: true, speed: 2, size_min: 0.1, sync: false }
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#00c3ff",
+                        opacity: 0.2,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                        attract: { enable: false, rotateX: 600, rotateY: 1200 }
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 0.5 } },
+                        bubble: { distance: 400, size: 40, duration: 2, opacity: 0.8, speed: 3 },
+                        repulse: { distance: 200, duration: 0.4 },
+                        push: { particles_nb: 4 },
+                        remove: { particles_nb: 2 }
+                    }
+                },
+                retina_detect: true
+            });
+            
+            // Initialize Three.js background
+            initThreeBackground();
+            
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Initialize Tilt effect
+            VanillaTilt.init(document.querySelectorAll("[data-tilt]"), {
+                max: 5,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.2,
+            });
+            
+            // Email modal handlers
+            document.getElementById('close-modal').addEventListener('click', function() {
+                document.getElementById('email-modal').classList.add('hidden');
+            });
+            
+            // Email form submission
+            document.getElementById('email-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const form = this;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+                
+                // Simulating form submission success for the demo
+                setTimeout(() => {
+                    submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Sent!';
+                    
+                    // Show success notification
+                    // Continuing from where the paste left off...
+
+                    // Show success notification
+                    const notification = document.getElementById('success-notification');
+                    notification.classList.remove('hidden');
+                    
+                    // Hide notification after 5 seconds
+                    setTimeout(() => {
+                        notification.classList.add('hidden');
+                        // Reset button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        // Close modal
+                        document.getElementById('email-modal').classList.add('hidden');
+                    }, 5000);
+                }, 2000);
+            });
+        });
+
+        // Start assessment button
+        document.getElementById('yes').addEventListener('click', function() {
+            startAssessment();
+        });
+
+        // Three.js background animation
+        function initThreeBackground() {
+            const container = document.getElementById('canvas-container');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // Create scene, camera, and renderer
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.z = 50;
+            
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+            
+            // Create grid of points
+            const geometry = new THREE.BufferGeometry();
+            const count = 1000;
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+            
+            for (let i = 0; i < count; i++) {
+                // Position
+                const x = (Math.random() - 0.5) * 100;
+                const y = (Math.random() - 0.5) * 100;
+                const z = (Math.random() - 0.5) * 50;
+                
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+                
+                // Color
+                const r = Math.random() * 0.2;
+                const g = Math.random() * 0.5 + 0.5; // More blue/cyan
+                const b = Math.random() * 0.5 + 0.5;
+                
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.5,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.8,
+                vertexColors: true
+            });
+            
+            const points = new THREE.Points(geometry, material);
+            scene.add(points);
+            
+            // Add event listener for mouse movement
+            window.addEventListener('mousemove', (event) => {
+                const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                points.rotation.x = mouseY * 0.05;
+                points.rotation.y = mouseX * 0.05;
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const newWidth = window.innerWidth;
+                const newHeight = window.innerHeight;
+                
+                camera.aspect = newWidth / newHeight;
+                camera.updateProjectionMatrix();
+                
+                renderer.setSize(newWidth, newHeight);
+            });
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                points.rotation.x += 0.0005;
+                points.rotation.y += 0.0005;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+        }
+
+        // Assessment data
+        const assessmentData = {
+            categories: [
+                {
+                    id: "anxiety",
+                    title: "Anxiety Assessment",
+                    description: "Evaluates symptoms related to anxiety disorders",
+                    icon: "fa-bolt",
+                    color: "#00c3ff",
+                    questions: [
+                        { text: "Feeling nervous, anxious, or on edge", id: "anxiety1" },
+                        { text: "Not being able to stop or control worrying", id: "anxiety2" },
+                        { text: "Worrying too much about different things", id: "anxiety3" },
+                        { text: "Trouble relaxing", id: "anxiety4" },
+                        { text: "Being so restless that it's hard to sit still", id: "anxiety5" },
+                        { text: "Becoming easily annoyed or irritable", id: "anxiety6" },
+                        { text: "Feeling afraid as if something awful might happen", id: "anxiety7" }
+                    ]
+                },
+                {
+                    id: "depression",
+                    title: "Depression Assessment",
+                    description: "Evaluates symptoms related to depressive disorders",
+                    icon: "fa-cloud",
+                    color: "#6566ff",
+                    questions: [
+                        { text: "Little interest or pleasure in doing things", id: "depression1" },
+                        { text: "Feeling down, depressed, or hopeless", id: "depression2" },
+                        { text: "Trouble falling or staying asleep, or sleeping too much", id: "depression3" },
+                        { text: "Feeling tired or having little energy", id: "depression4" },
+                        { text: "Poor appetite or overeating", id: "depression5" },
+                        { text: "Feeling bad about yourself - or that you are a failure or have let yourself or your family down", id: "depression6" },
+                        { text: "Trouble concentrating on things, such as reading or watching television", id: "depression7" },
+                        { text: "Moving or speaking so slowly that other people could have noticed. Or the opposite - being so fidgety or restless that you have been moving around a lot more than usual", id: "depression8" },
+                        { text: "Thoughts that you would be better off dead, or of hurting yourself in some way", id: "depression9" }
+                    ]
+                },
+                {
+                    id: "stress",
+                    title: "Stress Assessment",
+                    description: "Evaluates perceived stress levels and coping capabilities",
+                    icon: "fa-fire",
+                    color: "#49fee3",
+                    questions: [
+                        { text: "Been upset because of something that happened unexpectedly", id: "stress1" },
+                        { text: "Felt that you were unable to control the important things in your life", id: "stress2" },
+                        { text: "Felt nervous and stressed", id: "stress3" },
+                        { text: "Felt confident about your ability to handle your personal problems", id: "stress4", reverse: true },
+                        { text: "Felt that things were going your way", id: "stress5", reverse: true },
+                        { text: "Found that you could not cope with all the things that you had to do", id: "stress6" },
+                        { text: "Been able to control irritations in your life", id: "stress7", reverse: true },
+                        { text: "Felt that you were on top of things", id: "stress8", reverse: true },
+                        { text: "Been angered because of things that happened that were outside of your control", id: "stress9" },
+                        { text: "Felt difficulties were piling up so high that you could not overcome them", id: "stress10" }
+                    ]
+                },
+                {
+                    id: "wellbeing",
+                    title: "Well-being Assessment",
+                    description: "Evaluates overall mental well-being and resilience",
+                    icon: "fa-heart",
+                    color: "#ff6b6b",
+                    questions: [
+                        { text: "I've been feeling optimistic about the future", id: "wellbeing1" },
+                        { text: "I've been feeling useful", id: "wellbeing2" },
+                        { text: "I've been feeling relaxed", id: "wellbeing3" },
+                        { text: "I've been dealing with problems well", id: "wellbeing4" },
+                        { text: "I've been thinking clearly", id: "wellbeing5" },
+                        { text: "I've been feeling close to other people", id: "wellbeing6" },
+                        { text: "I've been able to make up my own mind about things", id: "wellbeing7" }
+                    ]
+                }
+            ],
+            options: [
+                { text: "Not at all", value: 0, color: "#00c3ff" },
+                { text: "Several days", value: 1, color: "#49fee3" },
+                { text: "More than half the days", value: 2, color: "#6566ff" },
+                { text: "Nearly every day", value: 3, color: "#ff6b6b" }
+            ]
+        };
+        
+        // Store user responses
+        let userResponses = {};
+        let currentCategory = 0;
+        let currentQuestion = 0;
+        
+        // Function to start assessment
+        function startAssessment() {
+            const landingContainer = document.getElementById('landing-container');
+            const mainContent = document.getElementById('main-content');
+            
+            // Animate transition
+            gsap.to(landingContainer, {
+                opacity: 0,
+                y: -50,
+                duration: 0.5,
+                onComplete: () => {
+                    landingContainer.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    
+                    // Reset and display the first question
+                    currentCategory = 0;
+                    currentQuestion = 0;
+                    displayCategory();
+                    
+                    // Animate in
+                    gsap.from(mainContent, {
+                        opacity: 0,
+                        y: 50,
+                        duration: 0.5
+                    });
+                }
+            });
+        }
+        
+        // Function to display category introduction
+        function displayCategory() {
+            const category = assessmentData.categories[currentCategory];
+            const mainContent = document.getElementById('main-content');
+            
+            // Initialize category in user responses if not exists
+            if (!userResponses[category.id]) {
+                userResponses[category.id] = {};
+            }
+            
+            mainContent.innerHTML = `
+                <div class="glassmorphism rounded-2xl p-8 max-w-3xl mx-auto text-center animate-float" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.1">
+                    <div class="flex justify-center mb-8">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-${category.color}/80 to-${category.color}/40 flex items-center justify-center text-4xl animate-pulse-slow shadow-lg">
+                            <i class="fas ${category.icon}"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="font-orbitron text-3xl md:text-4xl mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">${category.title}</h2>
+                    <p class="text-xl text-gray-300 mb-8">${category.description}</p>
+                    
+                    <div class="progress-bar-container mb-8 rounded-full overflow-hidden border border-gray-700">
+                        <div class="progress-bar" style="width: ${Math.floor((currentCategory / assessmentData.categories.length) * 100)}%"></div>
+                    </div>
+                    
+                    <p class="text-gray-300 mb-8">Please indicate how often you've been bothered by the following problems over the last 2 weeks.</p>
+                    
+                    <button id="start-category" class="cyber-button px-8 py-4 rounded-full bg-gradient-to-r from-primary-600 to-${category.color} text-white font-orbitron text-lg shadow-xl group relative overflow-hidden">
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            BEGIN ${category.title.toUpperCase()}
+                            <i class="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                        </span>
+                    </button>
+                </div>
+            `;
+            
+            // Initialize tilt effect
+            VanillaTilt.init(document.querySelectorAll("[data-tilt]"), {
+                max: 5,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.1,
+            });
+            
+            // Add event listener to start button
+            document.getElementById('start-category').addEventListener('click', function() {
+                displayQuestion();
+            });
+        }
+        
+        // Function to display question
+        function displayQuestion() {
+            const category = assessmentData.categories[currentCategory];
+            const question = category.questions[currentQuestion];
+            const mainContent = document.getElementById('main-content');
+            
+            mainContent.innerHTML = `
+                <div class="glassmorphism rounded-2xl p-8 max-w-3xl mx-auto animate-float relative overflow-hidden">
+                    <div class="scan-line"></div>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="font-orbitron text-2xl text-primary-400">${category.title}</h2>
+                        <div class="bg-dark-800 px-3 py-1 rounded-full text-sm text-gray-300 border border-gray-700">
+                            Question ${currentQuestion + 1}/${category.questions.length}
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar-container mb-8 rounded-full overflow-hidden border border-gray-700">
+                        <div class="progress-bar" style="width: ${Math.floor(((currentQuestion + 1) / category.questions.length) * 100)}%"></div>
+                    </div>
+                    
+                    <div class="mb-10">
+                        <h3 class="text-2xl md:text-3xl font-medium text-white mb-2">${question.text}</h3>
+                        <p class="text-gray-400 text-lg">How often have you been bothered by this over the last 2 weeks?</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        ${assessmentData.options.map((option, index) => `
+                            <div class="option-card rounded-xl p-5 border border-gray-700 hover:border-${option.color} transition-all duration-300" data-value="${option.value}">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-${option.color}/20 flex items-center justify-center mr-4 text-${option.color}">
+                                        <i class="fas fa-${index === 0 ? 'smile-beam' : index === 1 ? 'meh' : index === 2 ? 'frown' : 'sad-tear'}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-medium text-white">${option.text}</h4>
+                                        <div class="h-1 w-12 bg-${option.color} rounded-full mt-1"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners to options
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    selectOption(value);
+                    
+                    // Highlight selected option
+                    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Proceed to next question after a short delay
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 700);
+                });
+            });
+        }
+        
+        // Function to record user selection
+        function selectOption(value) {
+            const category = assessmentData.categories[currentCategory];
+            const question = category.questions[currentQuestion];
+            
+            // Record response (handle reverse scoring if applicable)
+            if (question.reverse) {
+                // Reverse scoring (e.g., 0->3, 1->2, 2->1, 3->0)
+                userResponses[category.id][question.id] = 3 - value;
+            } else {
+                userResponses[category.id][question.id] = value;
+            }
+        }
+        
+        // Function to move to next question or category
+        function nextQuestion() {
+            const category = assessmentData.categories[currentCategory];
+            
+            // Increment question counter
+            currentQuestion++;
+            
+            // Check if we've completed all questions in this category
+            if (currentQuestion >= category.questions.length) {
+                // Move to next category or show results
+                currentQuestion = 0;
+                currentCategory++;
+                
+                if (currentCategory >= assessmentData.categories.length) {
+                    // All categories completed, show results
+                    showResults();
+                } else {
+                    // Move to next category
+                    displayCategory();
+                }
+            } else {
+                // Display next question
+                displayQuestion();
+            }
+        }
+        
+        // Function to calculate scores
+        function calculateScores() {
+            const scores = {};
+            
+            // Calculate score for each category
+            assessmentData.categories.forEach(category => {
+                let total = 0;
+                let count = 0;
+                
+                category.questions.forEach(question => {
+                    if (userResponses[category.id][question.id] !== undefined) {
+                        total += userResponses[category.id][question.id];
+                        count++;
+                    }
+                });
+                
+                // Calculate average and scaled scores
+                const average = count > 0 ? total / count : 0;
+                const scaledScore = Math.min(Math.round((average / 3) * 100), 100); // Scale to 0-100%
+                
+                scores[category.id] = {
+                    raw: total,
+                    average: average,
+                    scaled: scaledScore,
+                    maxPossible: category.questions.length * 3
+                };
+            });
+            
+            return scores;
+        }
+        
+        // Function to get interpretation based on score
+        function getInterpretation(categoryId, score) {
+            // Define interpretation thresholds for each category
+            const interpretations = {
+                anxiety: [
+                    { max: 25, text: "Minimal anxiety symptoms", color: "text-primary-500" },
+                    { max: 50, text: "Mild anxiety symptoms", color: "text-accent-500" },
+                    { max: 75, text: "Moderate anxiety symptoms", color: "text-yellow-500" },
+                    { max: 100, text: "Severe anxiety symptoms", color: "text-red-500" }
+                ],
+                depression: [
+                    { max: 25, text: "Minimal depression symptoms", color: "text-primary-500" },
+                    { max: 50, text: "Mild depression symptoms", color: "text-accent-500" },
+                    { max: 75, text: "Moderate depression symptoms", color: "text-yellow-500" },
+                    { max: 100, text: "Severe depression symptoms", color: "text-red-500" }
+                ],
+                stress: [
+                    { max: 25, text: "Low perceived stress", color: "text-primary-500" },
+                    { max: 50, text: "Moderate perceived stress", color: "text-accent-500" },
+                    { max: 75, text: "High perceived stress", color: "text-yellow-500" },
+                    { max: 100, text: "Very high perceived stress", color: "text-red-500" }
+                ],
+                wellbeing: [
+                    { max: 25, text: "Low mental wellbeing", color: "text-red-500" },
+                    { max: 50, text: "Below average mental wellbeing", color: "text-yellow-500" },
+                    { max: 75, text: "Average mental wellbeing", color: "text-accent-500" },
+                    { max: 100, text: "High mental wellbeing", color: "text-primary-500" }
+                ]
+            };
+            
+            // Adjust interpretation for wellbeing (higher is better, unlike others)
+            const interpretationArray = interpretations[categoryId];
+            let result;
+            
+            if (categoryId === "wellbeing") {
+                // For wellbeing, higher scores are better
+                for (let i = interpretationArray.length - 1; i >= 0; i--) {
+                    if (score >= 100 - interpretationArray[i].max) {
+                        result = interpretationArray[i];
+                        break;
+                    }
+                }
+            } else {
+                // For negative scales, lower scores are better
+                for (const interp of interpretationArray) {
+                    if (score <= interp.max) {
+                        result = interp;
+                        break;
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        // Function to get recommendations based on scores
+        function getRecommendations(scores) {
+    const recommendations = [];
+    
+    // Anxiety recommendations
+    if (scores.anxiety.scaled > 50) {
+        const anxietyRecs = [
+            {
+                category: "anxiety",
+                title: "Mindfulness Meditation",
+                text: "Practice mindfulness meditation for 10-15 minutes daily to reduce anxiety and increase present-moment awareness."
+            },
+            {
+                category: "anxiety",
+                title: "Deep Breathing Exercises",
+                text: "Incorporate deep breathing exercises like 4-7-8 breathing (inhale for 4, hold for 7, exhale for 8) throughout your day."
+            },
+            {
+                category: "anxiety",
+                title: "Caffeine Management",
+                text: "Limit caffeine intake, especially after noon, as it can exacerbate anxiety symptoms and interfere with sleep."
+            },
+            {
+                category: "anxiety",
+                title: "Progressive Muscle Relaxation",
+                text: "Practice progressive muscle relaxation by tensing and then releasing each muscle group to reduce physical tension associated with anxiety."
+            },
+            {
+                category: "anxiety",
+                title: "Cognitive Restructuring",
+                text: "Challenge anxious thoughts by identifying cognitive distortions and reframing them with more balanced perspectives."
+            },
+            {
+                category: "anxiety",
+                title: "Worry Time",
+                text: "Schedule a specific 15-20 minute 'worry time' each day to contain anxious thoughts rather than letting them dominate your whole day."
+            },
+            {
+                category: "anxiety",
+                title: "Nature Exposure",
+                text: "Spend at least 20 minutes in nature daily, as green spaces have been shown to reduce anxiety and stress hormones."
+            },
+            {
+                category: "anxiety",
+                title: "Digital Detox",
+                text: "Implement regular breaks from news and social media, which can trigger or worsen anxiety."
+            },
+            {
+                category: "anxiety",
+                title: "Herbal Support",
+                text: "Consider trying calming herbs like chamomile, lavender, or lemon balm as teas or essential oils (consult with healthcare provider first)."
+            },
+            {
+                category: "anxiety",
+                title: "Body Scan Practice",
+                text: "Perform regular body scans to identify where you hold tension and consciously release it."
+            }
+        ];
+        recommendations.push(...anxietyRecs);
+    }
+    
+    // Depression recommendations
+    if (scores.depression.scaled > 50) {
+        const depressionRecs = [
+            {
+                category: "depression",
+                title: "Establishing Routine",
+                text: "Create and maintain a consistent daily routine to provide structure and predictability."
+            },
+            {
+                category: "depression",
+                title: "Physical Activity",
+                text: "Engage in at least 30 minutes of moderate exercise daily, which releases endorphins and can improve mood."
+            },
+            {
+                category: "depression",
+                title: "Social Connection",
+                text: "Schedule regular social interactions, even brief ones, to combat isolation and improve mood."
+            },
+            {
+                category: "depression",
+                title: "Goal Setting",
+                text: "Set small, achievable daily goals to build momentum and create a sense of accomplishment."
+            },
+            {
+                category: "depression",
+                title: "Light Therapy",
+                text: "Increase exposure to natural light or consider a light therapy box, especially during darker months."
+            },
+            {
+                category: "depression",
+                title: "Creative Expression",
+                text: "Engage in creative activities like art, music, writing, or dance as emotional outlets."
+            },
+            {
+                category: "depression",
+                title: "Nutrition Focus",
+                text: "Emphasize a Mediterranean-style diet rich in omega-3s, which has been linked to reduced depression symptoms."
+            },
+            {
+                category: "depression",
+                title: "Sleep Hygiene",
+                text: "Prioritize sleep quality by maintaining consistent sleep and wake times and creating a restful bedroom environment."
+            },
+            {
+                category: "depression",
+                title: "Volunteer Work",
+                text: "Consider volunteering, as helping others can increase sense of purpose and reduce depressive symptoms."
+            },
+            {
+                category: "depression",
+                title: "Behavioral Activation",
+                text: "Gradually increase pleasant activities in your schedule, even when motivation is low."
+            }
+        ];
+        recommendations.push(...depressionRecs);
+    }
+    
+    // Stress recommendations
+    if (scores.stress.scaled > 50) {
+        const stressRecs = [
+            {
+                category: "stress",
+                title: "Stressor Identification",
+                text: "Keep a stress journal to identify specific triggers and patterns in your stress response."
+            },
+            {
+                category: "stress",
+                title: "Time Management",
+                text: "Use time-blocking techniques and prioritization to better manage workload and reduce time pressure."
+            },
+            {
+                category: "stress",
+                title: "Boundary Setting",
+                text: "Practice setting and communicating clear boundaries in personal and professional relationships."
+            },
+            {
+                category: "stress",
+                title: "Progressive Relaxation",
+                text: "Practice progressive muscle relaxation before bed or during breaks to release physical tension."
+            },
+            {
+                category: "stress",
+                title: "Mindful Movement",
+                text: "Incorporate mindful movement practices like yoga, tai chi, or qigong to reduce stress levels."
+            },
+            {
+                category: "stress",
+                title: "Nature Connection",
+                text: "Spend time in natural settings regularly, which has been shown to lower cortisol levels."
+            },
+            {
+                category: "stress",
+                title: "Digital Boundaries",
+                text: "Create tech-free zones or times in your day to reduce information overload and constant connectivity."
+            },
+            {
+                category: "stress",
+                title: "Breathing Techniques",
+                text: "Practice box breathing (equal counts of inhale, hold, exhale, hold) during stressful moments."
+            },
+            {
+                category: "stress",
+                title: "Sensory Grounding",
+                text: "Use the 5-4-3-2-1 technique (identify 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste) to manage acute stress."
+            },
+            {
+                category: "stress",
+                title: "Cognitive Reframing",
+                text: "Practice reframing stressful situations by focusing on aspects you can control and accepting those you cannot."
+            }
+        ];
+        recommendations.push(...stressRecs);
+    }
+    
+    // Wellbeing recommendations
+    if (scores.wellbeing.scaled < 50) {
+        const wellbeingRecs = [
+            {
+                category: "wellbeing",
+                title: "Social Connection",
+                text: "Strengthen relationships by scheduling regular meaningful interactions with friends, family, or community groups."
+            },
+            {
+                category: "wellbeing",
+                title: "Gratitude Practice",
+                text: "Keep a daily gratitude journal, noting three specific things you appreciate each day."
+            },
+            {
+                category: "wellbeing",
+                title: "Strength Utilization",
+                text: "Identify your character strengths and find new ways to apply them in daily life."
+            },
+            {
+                category: "wellbeing",
+                title: "Flow Activities",
+                text: "Engage regularly in activities that create a sense of flow, where you lose track of time in focused engagement."
+            },
+            {
+                category: "wellbeing",
+                title: "Purpose Exploration",
+                text: "Reflect on and develop your sense of purpose through meaningful work, relationships, or community involvement."
+            },
+            {
+                category: "wellbeing",
+                title: "Mindful Eating",
+                text: "Practice mindful eating by savoring food without distractions, focusing on flavors, textures, and enjoyment."
+            },
+            {
+                category: "wellbeing",
+                title: "Learning Pursuit",
+                text: "Regularly learn new skills or subjects to stimulate cognitive growth and satisfaction."
+            },
+            {
+                category: "wellbeing",
+                title: "Nature Connection",
+                text: "Develop a regular practice of connecting with nature through gardening, hiking, or simply sitting outdoors."
+            },
+            {
+                category: "wellbeing",
+                title: "Kindness Acts",
+                text: "Perform regular acts of kindness, which boost wellbeing for both the giver and receiver."
+            },
+            {
+                category: "wellbeing",
+                title: "Experiential Investment",
+                text: "Invest time and resources in experiences rather than material possessions for greater happiness returns."
+            }
+        ];
+        recommendations.push(...wellbeingRecs);
+    }
+    
+    // General recommendations - always provided
+    const generalRecs = [
+        {
+            category: "general",
+            title: "Holistic Health Foundation",
+            text: "Maintain the foundation of good mental health through regular exercise, balanced nutrition, adequate sleep, and social connection."
+        },
+        {
+            category: "general",
+            title: "Professional Support",
+            text: "Consider speaking with a mental health professional for personalized guidance and evidence-based interventions."
+        },
+        {
+            category: "general",
+            title: "Mindfulness Practice",
+            text: "Develop a regular mindfulness practice to enhance overall mental clarity and emotional regulation."
+        },
+        {
+            category: "general",
+            title: "Sleep Optimization",
+            text: "Prioritize sleep quality by maintaining consistent sleep schedule, creating a restful environment, and limiting screen time before bed."
+        },
+        {
+            category: "general",
+            title: "Nutrition Awareness",
+            text: "Focus on a Mediterranean-style diet rich in vegetables, fruits, whole grains, lean proteins, and healthy fats for optimal brain health."
+        },
+        {
+            category: "general",
+            title: "Hydration Importance",
+            text: "Maintain proper hydration, as even mild dehydration can affect mood, cognition, and energy levels."
+        },
+        {
+            category: "general",
+            title: "Digital Wellbeing",
+            text: "Practice digital wellbeing by setting boundaries with technology and creating tech-free times in your day."
+        },
+        {
+            category: "general",
+            title: "Community Involvement",
+            text: "Foster a sense of belonging through community involvement or group activities aligned with your interests."
+        },
+        {
+            category: "general",
+            title: "Learning Mindset",
+            text: "Cultivate a growth mindset by viewing challenges as opportunities for learning rather than threats."
+        },
+        {
+            category: "general",
+            title: "Physical Environment",
+            text: "Create spaces in your home that promote calm and positive emotions through organization, natural elements, and personal touches."
+        }
+    ];
+    recommendations.push(...generalRecs);
+    
+    return recommendations;
+}
+        
+        // Function to show results
+        function showResults() {
+            const scores = calculateScores();
+            const recommendations = getRecommendations(scores);
+            const mainContent = document.getElementById('main-content');
+            
+            // Prepare radar chart data
+            const radarData = {
+                labels: assessmentData.categories.map(cat => cat.title),
+                datasets: [{
+                    label: 'Your Mental Health Profile',
+                    data: assessmentData.categories.map(cat => {
+                        // For wellbeing, invert the score for visualization (so higher is always better)
+                        return cat.id === "wellbeing" ? 100 - scores[cat.id].scaled : scores[cat.id].scaled;
+                    }),
+                    fill: true,
+                    backgroundColor: 'rgba(0, 195, 255, 0.2)',
+                    borderColor: 'rgba(0, 195, 255, 1)',
+                    pointBackgroundColor: 'rgba(0, 195, 255, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(0, 195, 255, 1)'
+                }]
+            };
+            
+            // Create results HTML
+            mainContent.innerHTML = `
+                <div class="glassmorphism rounded-2xl p-8 max-w-6xl mx-auto relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 rounded-2xl"></div>
+                    
+                    <h2 class="font-orbitron text-3xl md:text-4xl mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary-300 to-secondary-400">ASSESSMENT RESULTS</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 mb-12">
+                        <div class="w-full md:w-1/2 chart-background p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-4 text-primary-400 font-orbitron">MENTAL HEALTH PROFILE</h3>
+                            <div class="radar-chart-wrapper">
+                                <canvas id="radarChart" width="400" height="400"></canvas>
+                            </div>
+                            <p class="text-gray-400 mt-4 text-sm text-center">Note: Higher values indicate areas that may need attention (except for Well-being, where higher is better)</p>
+                        </div>
+                        
+                        <div class="w-full md:w-1/2">
+                            <div class="glassmorphism p-6 rounded-xl mb-6">
+                                <h3 class="text-xl font-semibold mb-4 text-primary-400 font-orbitron">ASSESSMENT SUMMARY</h3>
+                                
+                                <div class="space-y-4">
+                                    ${assessmentData.categories.map(category => {
+                                        const interpretation = getInterpretation(category.id, scores[category.id].scaled);
+                                        return `
+                                            <div class="bg-dark-900/50 p-4 rounded-lg border border-gray-800">
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <h4 class="font-medium text-lg">${category.title}</h4>
+                                                    <div class="bg-dark-800 px-3 py-1 rounded-full text-sm text-gray-300">
+                                                        Score: ${scores[category.id].scaled}/100
+                                                    </div>
+                                                </div>
+                                                <div class="w-full bg-gray-800 rounded-full h-2.5 mb-2">
+                                                    <div class="h-2.5 rounded-full" style="width: ${scores[category.id].scaled}%; background: linear-gradient(90deg, #00c3ff, ${category.color})"></div>
+                                                </div>
+                                                <p class="${interpretation.color}">${interpretation.text}</p>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-center">
+                                <button id="show-recommendations" class="cyber-button px-6 py-3 rounded-full bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-orbitron text-lg shadow-xl group relative overflow-hidden">
+                                    <span class="relative z-10 flex items-center justify-center gap-2">
+                                        VIEW RECOMMENDATIONS
+                                        <i class="fas fa-chevron-down transition-transform group-hover:translate-y-1"></i>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="recommendations-section" class="hidden">
+                        <h3 class="font-orbitron text-2xl md:text-3xl mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-accent-300 to-accent-500">PERSONALIZED RECOMMENDATIONS</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            ${recommendations.map(rec => `
+                                <div class="glassmorphism p-6 rounded-xl h-full" data-tilt data-tilt-max="3" data-tilt-speed="400">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-10 h-10 rounded-full bg-${rec.category === 'anxiety' ? 'primary' : rec.category === 'depression' ? 'secondary' : rec.category === 'stress' ? 'yellow' : rec.category === 'wellbeing' ? 'accent' : 'gray'}-500/20 flex items-center justify-center mr-3 text-${rec.category === 'anxiety' ? 'primary' : rec.category === 'depression' ? 'secondary' : rec.category === 'stress' ? 'yellow' : rec.category === 'wellbeing' ? 'accent' : 'gray'}-400">
+                                            <i class="fas fa-${rec.category === 'anxiety' ? 'bolt' : rec.category === 'depression' ? 'cloud' : rec.category === 'stress' ? 'fire' : rec.category === 'wellbeing' ? 'heart' : 'brain'}"></i>
+                                        </div>
+                                        <h4 class="text-xl font-semibold text-white">${rec.title}</h4>
+                                    </div>
+                                    <p class="text-gray-300">${rec.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <p class="text-gray-300 mb-6">Would you like to receive a detailed report of your assessment results?</p>
+                            <button id="generate-report" class="cyber-button px-8 py-4 rounded-full bg-gradient-to-r from-accent-600 to-accent-800 text-white font-orbitron text-lg shadow-xl group relative overflow-hidden">
+                                <span class="relative z-10 flex items-center justify-center gap-2">
+                                    <i class="fas fa-file-pdf mr-2"></i>
+                                    GENERATE REPORT
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize radar chart
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            const radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: radarData,
+                options: {
+                        elements: {
+                            line: {
+                                borderWidth: 3
+                            },
+                            point: {
+                                radius: 5,
+                                hoverRadius: 8,
+                                backgroundColor: 'rgba(0, 195, 255, 0.8)',
+                                borderColor: '#fff'
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                pointLabels: {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 12
+                                    }
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.5)',
+                                    backdropColor: 'transparent'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(20, 20, 30, 0.9)',
+                                titleFont: {
+                                    family: "'Orbitron', sans-serif",
+                                    size: 14
+                                },
+                                bodyFont: {
+                                    family: "'Inter', sans-serif",
+                                    size: 13
+                                },
+                                padding: 12,
+                                cornerRadius: 8,
+                                caretSize: 6,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.raw || 0;
+                                        // For wellbeing, invert the displayed value
+                                        const index = context.dataIndex;
+                                        const categoryId = assessmentData.categories[index].id;
+                                        if (categoryId === 'wellbeing') {
+                                            return `${label}: ${100 - value}% (Higher is better)`;
+                                        } else {
+                                            return `${label}: ${value}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            
+            // Initialize tilt effect
+            VanillaTilt.init(document.querySelectorAll("[data-tilt]"), {
+                max: 5,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.1,
+            });
+            
+            // Add event listener to show recommendations button
+            document.getElementById('show-recommendations').addEventListener('click', function() {
+                const recommendationsSection = document.getElementById('recommendations-section');
+                
+                if (recommendationsSection.classList.contains('hidden')) {
+                    recommendationsSection.classList.remove('hidden');
+                    
+                    // Scroll to recommendations
+                    gsap.to(window, {
+                        duration: 1,
+                        scrollTo: {
+                            y: recommendationsSection,
+                            offsetY: 50
+                        },
+                        ease: "power2.inOut"
+                    });
+                    
+                    // Animate recommendations in
+                    gsap.from('#recommendations-section > *', {
+                        y: 50,
+                        opacity: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: "back.out(1.2)"
+                    });
+                    
+                    // Update button text
+                    this.querySelector('span').innerHTML = `
+                        HIDE RECOMMENDATIONS
+                        <i class="fas fa-chevron-up transition-transform group-hover:-translate-y-1"></i>
+                    `;
+                } else {
+                    recommendationsSection.classList.add('hidden');
+                    
+                    // Update button text
+                    this.querySelector('span').innerHTML = `
+                        VIEW RECOMMENDATIONS
+                        <i class="fas fa-chevron-down transition-transform group-hover:translate-y-1"></i>
+                    `;
+                }
+            });
+            
+            // Add event listener to generate report button
+            document.getElementById('generate-report').addEventListener('click', function() {
+                // Open email modal
+                generateAndDownloadPrescription();
+            });
+        }
+        
+        // Function to open email modal
+        // Function to generate and download the PDF prescription
+        async function generateAndDownloadPrescription() {
+    const generateBtn = document.getElementById('generate-report');
+    
+    // Show loading state
+    const originalText = generateBtn.innerHTML;
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GENERATING...';
+    generateBtn.disabled = true;
+    
+    try {
+        // Generate PDF prescription
+        const pdfBlob = await generatePrescription();
+        
+        // Create download link
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'MindLift_Prescription.pdf';
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Reset button
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = originalText;
+            
+            // Show success notification
+            showDownloadNotification('Prescription downloaded successfully!', 'success');
+        }, 100);
+    } catch (error) {
+        console.error('Error generating prescription:', error);
+        
+        // Reset button
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalText;
+        
+        // Show error notification
+        showDownloadNotification('Error generating prescription. Please try again.', 'error');
+    }
+}
+
+// Function to show notification
+function showDownloadNotification(message, type) {
+    // Remove existing notification if present
+    if (document.getElementById('download-notification')) {
+        document.getElementById('download-notification').remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.id = 'download-notification';
+    notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-xl flex items-center gap-3 z-50 glassmorphism ${
+        type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
+    }`;
+    
+    // Set inner HTML with icon and message
+    notification.innerHTML = `
+        <div class="text-2xl ${type === 'success' ? 'text-green-400' : 'text-red-400'}">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} animate-pulse-slow"></i>
+        </div>
+        <div>
+            <div class="font-medium text-white">${type === 'success' ? 'Success!' : 'Error'}</div>
+            <div class="text-sm text-gray-300">${message}</div>
+        </div>
+        <button class="ml-4 text-gray-400 hover:text-white">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Add to document
+    document.body.appendChild(notification);
+    
+    // Add event listener to close button
+    notification.querySelector('button').addEventListener('click', function() {
+        notification.remove();
+    });
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        if (document.getElementById('download-notification')) {
+            const notif = document.getElementById('download-notification');
+            notif.classList.add('opacity-0');
+            setTimeout(() => notif.remove(), 300);
+        }
+    }, 5000);
+    
+    // Add animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        #download-notification {
+            transition: opacity 0.3s ease;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Helper function for safer color handling
+function safeSetFillColor(doc, r, g, b) {
+    try {
+        // Ensure values are numbers
+        r = Number(r) || 0;
+        g = Number(g) || 0;
+        b = Number(b) || 0;
+        
+        // Ensure values are in valid range
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+        
+        doc.setFillColor(r, g, b);
+    } catch (error) {
+        console.error('Error in setFillColor:', error, r, g, b);
+        // Fallback to a safe color
+        doc.setFillColor(0, 0, 0);
+    }
+}
+
+// Helper function to get color based on score
+function getScoreColor(score) {
+    // Make sure score is a number
+    score = parseFloat(score) || 0;
+    
+    if (score >= 80) return [73, 254, 227]; // Teal/Accent
+    if (score >= 60) return [0, 195, 255]; // Blue/Primary
+    if (score >= 40) return [255, 214, 0]; // Yellow
+    if (score >= 20) return [255, 149, 0]; // Orange
+    return [255, 84, 84]; // Red
+}
+
+// Function to generate an enhanced, visually appealing PDF prescription
+function generatePrescription() {
+    return new Promise((resolve, reject) => {
+        try {
+            // Calculate scores
+            const scores = calculateScores();
+            
+            // Create a new jsPDF instance
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Add background gradient
+            const width = doc.internal.pageSize.getWidth();
+            const height = doc.internal.pageSize.getHeight();
+            
+            // Add subtle background
+            safeSetFillColor(doc, 15, 15, 25);
+            doc.rect(0, 0, width, height, 'F');
+            
+            // Add header design
+            safeSetFillColor(doc, 10, 10, 20);
+            doc.roundedRect(10, 10, width - 20, 30, 3, 3, 'F');
+            
+            // Add accent line
+            doc.setDrawColor(0, 195, 255);
+            doc.setLineWidth(1);
+            doc.line(10, 44, width - 10, 44);
+            
+            // Add digital corner accent
+            const cornerSize = 20;
+            doc.setDrawColor(0, 195, 255);
+            doc.setLineWidth(0.5);
+            
+            // Top left corner
+            doc.line(10, 10, 10, 10 + cornerSize);
+            doc.line(10, 10, 10 + cornerSize, 10);
+            
+            // Bottom right corner
+            doc.line(width - 10, height - 10, width - 10, height - 10 - cornerSize);
+            doc.line(width - 10, height - 10, width - 10 - cornerSize, height - 10);
+            
+            // Add title and logo
+            doc.setFontSize(24);
+            doc.setTextColor(0, 195, 255);
+            doc.text('MindLift Mental Health Prescription', 105, 25, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Confidential Prescription', 105, 33, { align: 'center' });
+            
+            // Add date with styled box
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(width - 60, 50, 50, 10, 2, 2, 'F');
+            
+            const today = new Date();
+            doc.setFontSize(9);
+            doc.setTextColor(180, 180, 180);
+            doc.text(`Date: ${today.toLocaleDateString()}`, width - 35, 56, { align: 'center' });
+            
+            // Add futuristic ID number
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(10, 50, 70, 10, 2, 2, 'F');
+            
+            const randomId = `MH-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+            doc.setFontSize(9);
+            doc.setTextColor(180, 180, 180);
+            doc.text(`Prescription ID: ${randomId}`, 45, 56, { align: 'center' });
+            
+            // Add patient information section with styled background
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(10, 65, width - 20, 25, 3, 3, 'F');
+            
+            doc.setDrawColor(73, 254, 227); // accent color
+            doc.setLineWidth(0.3);
+            doc.line(11, 72, width - 11, 72);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(73, 254, 227); // accent color
+            doc.text('Patient Information', 15, 70);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(200, 200, 200);
+            
+            doc.text('Name:', 20, 78);
+            doc.setDrawColor(100, 100, 120);
+            doc.line(40, 78, 110, 78);
+            
+            doc.text('Date of Birth:', 120, 78);
+            doc.line(150, 78, 190, 78);
+            
+            doc.text('Assessment Date:', 20, 86);
+            doc.line(60, 86, 110, 86);
+            
+            // Add assessment summary with styled header
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(10, 95, width - 20, 15, 3, 3, 'F');
+            
+            doc.setTextColor(0, 195, 255);
+            doc.setFontSize(14);
+            doc.text('Assessment Summary', 15, 104);
+            
+            // Add hexagon icon near the header
+            const hexSize = 3;
+            safeSetFillColor(doc, 0, 195, 255);
+            doc.setDrawColor(0, 195, 255);
+            drawHexagon(doc, width - 20, 104, hexSize);
+            
+            // Add results for each category with styled cards
+            let y = 118;
+            
+            assessmentData.categories.forEach((category, i) => {
+                // Check if we need a new page
+                if (y > 250) {
+                    doc.addPage();
+                    
+                    // Add background for new page
+                    safeSetFillColor(doc, 15, 15, 25);
+                    doc.rect(0, 0, width, height, 'F');
+                    
+                    // Reset y position
+                    y = 20;
+                }
+                
+                // Add category card background
+                safeSetFillColor(doc, 25, 25, 45);
+                doc.roundedRect(15, y, width - 30, 30, 3, 3, 'F');
+                
+                // Add category icon indicator - safely handle potential undefined values
+                try {
+                    if (scores && scores[category.id] && scores[category.id].scaled != null) {
+                        const colorValues = getScoreColor(scores[category.id].scaled);
+                        safeSetFillColor(doc, colorValues[0], colorValues[1], colorValues[2]);
+                    } else {
+                        safeSetFillColor(doc, 0, 195, 255); // Default color if data is missing
+                    }
+                    drawHexagon(doc, 25, y + 8, 2.5);
+                } catch (error) {
+                    console.error("Error drawing category icon:", error);
+                    safeSetFillColor(doc, 0, 195, 255);
+                    drawHexagon(doc, 25, y + 8, 2.5);
+                }
+                
+                // Add category title
+                doc.setFontSize(13);
+                try {
+                    if (scores && scores[category.id] && scores[category.id].scaled != null) {
+                        const colorValues = getScoreColor(scores[category.id].scaled);
+                        doc.setTextColor(colorValues[0], colorValues[1], colorValues[2]);
+                    } else {
+                        doc.setTextColor(0, 195, 255); // Default color if data is missing
+                    }
+                } catch (error) {
+                    console.error("Error setting text color:", error);
+                    doc.setTextColor(0, 195, 255);
+                }
+                doc.text(`${category.title}`, 35, y + 8);
+                
+                // Add score with visual indicator
+                doc.setFontSize(11);
+                doc.setTextColor(255, 255, 255);
+                
+                let scaledScore = 0;
+                try {
+                    scaledScore = scores && scores[category.id] ? scores[category.id].scaled : 0;
+                    if (isNaN(scaledScore)) scaledScore = 0;
+                } catch (error) {
+                    console.error("Error getting score:", error);
+                    scaledScore = 0;
+                }
+                
+                doc.text(`Score: ${scaledScore}/100`, 35, y + 16);
+                
+                // Add score bar
+                const barWidth = 50;
+                const scoreWidth = (scaledScore / 100) * barWidth;
+                
+                safeSetFillColor(doc, 30, 30, 50);
+                doc.roundedRect(90, y + 13, barWidth, 4, 1, 1, 'F');
+                
+                try {
+                    const colorValues = getScoreColor(scaledScore);
+                    safeSetFillColor(doc, colorValues[0], colorValues[1], colorValues[2]);
+                } catch (error) {
+                    console.error("Error setting fill color:", error);
+                    safeSetFillColor(doc, 0, 195, 255);
+                }
+                
+                if (scoreWidth > 0) {
+                    doc.roundedRect(90, y + 13, scoreWidth, 4, 1, 1, 'F');
+                }
+                
+                // Add interpretation
+                let interpretation = { text: "No interpretation available." };
+                try {
+                    interpretation = getInterpretation(category.id, scaledScore);
+                } catch (error) {
+                    console.error("Error getting interpretation:", error);
+                }
+                
+                doc.setFontSize(10);
+                doc.setTextColor(180, 180, 180);
+                
+                const splitInterpretation = doc.splitTextToSize(interpretation.text, 150);
+                doc.text(splitInterpretation, 35, y + 23);
+                
+                // Update y position based on interpretation length
+                const interpretationHeight = Math.max(splitInterpretation.length * 4, 8);
+                y += 30 + interpretationHeight;
+            });
+            
+            // Add recommendations section with styled header
+            y += 5;
+            
+            // Check if we need a new page
+            if (y > 250) {
+                doc.addPage();
+                
+                // Add background for new page
+                safeSetFillColor(doc, 15, 15, 25);
+                doc.rect(0, 0, width, height, 'F');
+                
+                // Reset y position
+                y = 20;
+            }
+            
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(10, y, width - 20, 15, 3, 3, 'F');
+            
+            doc.setTextColor(73, 254, 227); // accent color
+            doc.setFontSize(14);
+            doc.text('Prescribed Interventions', 15, y + 10);
+            
+            // Add digital corner accent to section
+            const sectionCornerSize = 5;
+            doc.setDrawColor(73, 254, 227);
+            doc.setLineWidth(0.3);
+            
+            // Section top left corner
+            doc.line(10, y, 10 + sectionCornerSize, y);
+            doc.line(10, y, 10, y + sectionCornerSize);
+            
+            // Section top right corner
+            doc.line(width - 10, y, width - 10 - sectionCornerSize, y);
+            doc.line(width - 10, y, width - 10, y + sectionCornerSize);
+            
+            y += 20;
+            
+            // Get recommendations
+            let recommendations = [];
+            try {
+                recommendations = getRecommendations(scores) || [];
+                if (!Array.isArray(recommendations)) {
+                    recommendations = [];
+                }
+            } catch (error) {
+                console.error("Error getting recommendations:", error);
+            }
+            
+            recommendations.forEach((rec, index) => {
+                // Check if we need to start a new page
+                if (y > 250) {
+                    doc.addPage();
+                    
+                    // Add background for new page
+                    safeSetFillColor(doc, 15, 15, 25);
+                    doc.rect(0, 0, width, height, 'F');
+                    
+                    // Reset y position
+                    y = 20;
+                }
+                
+                // Add recommendation box
+                safeSetFillColor(doc, 25, 25, 45);
+                doc.roundedRect(15, y, width - 30, 20, 3, 3, 'F');
+                
+                // Add recommendation number in accent circle
+                safeSetFillColor(doc, 20, 20, 35);
+                doc.circle(25, y + 10, 6, 'F');
+                doc.setFontSize(10);
+                doc.setTextColor(73, 254, 227);
+                doc.text(`${index + 1}`, 25, y + 10, { align: 'center' });
+                
+                // Add recommendation title
+                doc.setFontSize(12);
+                doc.setTextColor(100, 200, 255);
+                doc.text(`${rec.title || "Recommendation"}`, 35, y + 8);
+                
+                // Add recommendation text
+                doc.setFontSize(10);
+                doc.setTextColor(180, 180, 180);
+                
+                const recText = rec.text || "No details available.";
+                const splitText = doc.splitTextToSize(recText, 150);
+                doc.text(splitText, 35, y + 15);
+                
+                // Update y position based on text length
+                const textHeight = Math.max(splitText.length * 4, 8);
+                y += 20 + textHeight;
+            });
+            
+            // Add follow-up section with styled header
+            y += 5;
+            
+            // Check if we need a new page
+            if (y > 250) {
+                doc.addPage();
+                
+                // Add background for new page
+                safeSetFillColor(doc, 15, 15, 25);
+                doc.rect(0, 0, width, height, 'F');
+                
+                // Reset y position
+                y = 20;
+            }
+            
+            safeSetFillColor(doc, 20, 20, 35);
+            doc.roundedRect(10, y, width - 20, 15, 3, 3, 'F');
+            
+            doc.setTextColor(0, 195, 255);
+            doc.setFontSize(14);
+            doc.text('Follow-up Plan', 15, y + 10);
+            
+            y += 20;
+            
+            // Add follow-up checkboxes with styled design
+            safeSetFillColor(doc, 25, 25, 45);
+            doc.roundedRect(15, y, width - 30, 40, 3, 3, 'F');
+            
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200);
+            
+            // Add checkboxes
+            const checkItems = [
+                'Schedule follow-up appointment in 2 weeks',
+                'Complete daily mood tracking',
+                'Practice prescribed interventions for 30 days',
+                'Other: _______________________________________'
+            ];
+            
+            checkItems.forEach((item, index) => {
+                const itemY = y + 10 + (index * 8);
+                
+                // Add checkbox
+                doc.setDrawColor(73, 254, 227);
+                safeSetFillColor(doc, 20, 20, 35);
+                doc.rect(20, itemY - 3, 5, 5, 'FD');
+                
+                // Add text
+                doc.setTextColor(200, 200, 200);
+                doc.text(item, 30, itemY);
+            });
+            
+            y += 50;
+            
+            // Add signature section with styled design
+            safeSetFillColor(doc, 25, 25, 45);
+            doc.roundedRect(15, y, width - 30, 30, 3, 3, 'F');
+            
+            // Add signature line
+            doc.setDrawColor(150, 150, 150);
+            doc.setLineWidth(0.5);
+            doc.line(25, y + 15, 100, y + 15);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Mental Health Professional Signature', 25, y + 20);
+            
+            // Add date line
+            doc.line(width - 100, y + 15, width - 25, y + 15);
+            doc.text('Date', width - 65, y + 20, { align: 'center' });
+            
+            // Add digital verification text
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 120);
+            doc.text('Digital verification: This document contains a digital signature and timestamp.', 105, y + 27, { align: 'center' });
+            
+            // Add footer with disclaimer - safely handling with try/catch
+            try {
+                y = height - 15;
+                
+                safeSetFillColor(doc, 20, 20, 35);
+                doc.roundedRect(10, height - 25, width - 20, 15, 3, 3, 'F');
+                
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                const disclaimer = "DISCLAIMER: This prescription is based on an automated assessment and should be reviewed by a qualified mental health professional. It is not a substitute for professional medical advice, diagnosis, or treatment.";
+                const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+                doc.text(splitDisclaimer, 105, height - 18, { align: 'center' });
+                
+                // Add MindLift footer
+                doc.setFontSize(8);
+                doc.setTextColor(73, 254, 227);
+                doc.text('MindLift Mental Health Solutions', 105, height - 8, { align: 'center' });
+            } catch (footerError) {
+                console.error('Error in footer rendering:', footerError);
+                // Continue without footer if there's an error
+            }
+            
+            // Save the PDF
+            const pdfBlob = doc.output('blob');
+            resolve(pdfBlob);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            reject(error);
+        }
+    });
+}
+
+// Helper function to draw a hexagon
+function drawHexagon(doc, centerX, centerY, size) {
+    try {
+        const points = [];
+        for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI) / 3;
+            const x = centerX + size * Math.cos(angle);
+            const y = centerY + size * Math.sin(angle);
+            points.push({ x, y });
+        }
+        
+        doc.lines(
+            points.map((point, i) => {
+                const nextPoint = points[(i + 1) % 6];
+                return [nextPoint.x - point.x, nextPoint.y - point.y];
+            }),
+            points[0].x,
+            points[0].y,
+            [1, 1],
+            'F'
+        );
+    } catch (error) {
+        console.error('Error drawing hexagon:', error);
+        // If hexagon drawing fails, draw a circle instead as fallback
+        try {
+            doc.circle(centerX, centerY, size, 'F');
+        } catch (circleError) {
+            console.error('Error drawing fallback circle:', circleError);
+        }
+    }
+}
+
+// Update the event listener for the generate report button
+document.getElementById('generate-report').removeEventListener('click', generatePrescription);
+document.getElementById('generate-report').addEventListener('click', generateAndDownloadPrescription);
+
+// Update the button text and icon
+document.getElementById('generate-report').innerHTML = `
+    <button id="download-prescription" class="cyber-button px-6 py-3 rounded-full bg-gradient-to-r from-accent-600 to-primary-600 text-white font-orbitron text-lg shadow-xl relative overflow-hidden group w-full">
+        <span class="relative z-10 flex items-center justify-center gap-2">
+            DOWNLOAD PRESCRIPTION
+            <i class="fas fa-file-download group-hover:translate-y-1 transition-transform"></i>
+        </span>
+    </button>
+`;
+
+// Add fancy animation to the button
+const downloadButton = document.getElementById('download-prescription');
+if (downloadButton) {
+    downloadButton.addEventListener('mouseenter', function() {
+        gsap.to(this, {
+            scale: 1.05,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    });
+    
+    downloadButton.addEventListener('mouseleave', function() {
+        gsap.to(this, {
+            scale: 1,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    });
+}
+        
+        // Function to generate PDF report
+        function generatePDFReport() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Calculate scores
+                    const scores = calculateScores();
+                    
+                    // Create a new jsPDF instance
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    // Add title and logo
+                    doc.setFontSize(24);
+                    doc.setTextColor(0, 195, 255);
+                    doc.text('MindLift Mental Health Assessment', 105, 20, { align: 'center' });
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text('Confidential Report', 105, 28, { align: 'center' });
+                    
+                    // Add date
+                    const today = new Date();
+                    doc.text(`Date: ${today.toLocaleDateString()}`, 20, 40);
+                    
+                    // Add results for each category
+                    let y = 50;
+                    
+                    assessmentData.categories.forEach((category, i) => {
+                        // Add category title
+                        doc.setFontSize(16);
+                        doc.setTextColor(0, 195, 255);
+                        doc.text(`${category.title}`, 20, y);
+                        y += 10;
+                        
+                        // Add score
+                        doc.setFontSize(14);
+                        doc.setTextColor(255, 255, 255);
+                        doc.text(`Score: ${scores[category.id].scaled}/100`, 20, y);
+                        y += 8;
+                        
+                        // Add interpretation
+                        const interpretation = getInterpretation(category.id, scores[category.id].scaled);
+                        doc.setFontSize(12);
+                        doc.setTextColor(150, 150, 150);
+                        doc.text(`Interpretation: ${interpretation.text}`, 20, y);
+                        y += 15;
+                        
+                        // Add detailed breakdown
+                        doc.setFontSize(12);
+                        doc.setTextColor(200, 200, 200);
+                        doc.text('Response Summary:', 20, y);
+                        y += 8;
+                        
+                        // Add questions and responses
+                        doc.setFontSize(10);
+                        doc.setTextColor(180, 180, 180);
+                        
+                        category.questions.forEach((question, j) => {
+                            const response = userResponses[category.id][question.id];
+                            const optionText = assessmentData.options[response].text;
+                            
+                            // Check if we need to start a new page
+                            if (y > 250) {
+                                doc.addPage();
+                                y = 20;
+                            }
+                            
+                            const questionText = question.text.length > 80 ? 
+                                question.text.substring(0, 77) + '...' : 
+                                question.text;
+                                
+                            doc.text(`• ${questionText}`, 25, y);
+                            doc.text(`Response: ${optionText}`, 30, y + 5);
+                            y += 12;
+                        });
+                        
+                        y += 10;
+                    });
+                    
+                    // Add recommendations section
+                    doc.addPage();
+                    
+                    doc.setFontSize(20);
+                    doc.setTextColor(0, 195, 255);
+                    doc.text('Personalized Recommendations', 105, 20, { align: 'center' });
+                    
+                    // Get recommendations
+                    const recommendations = getRecommendations(scores);
+                    
+                    y = 35;
+                    recommendations.forEach(rec => {
+                        doc.setFontSize(14);
+                        doc.setTextColor(100, 200, 255);
+                        doc.text(rec.title, 20, y);
+                        y += 8;
+                        
+                        doc.setFontSize(11);
+                        doc.setTextColor(200, 200, 200);
+                        
+                        // Handle text wrapping
+                        const splitText = doc.splitTextToSize(rec.text, 170);
+                        doc.text(splitText, 20, y);
+                        y += splitText.length * 6 + 10;
+                    });
+                    
+                    // Add disclaimer
+                    y += 10;
+                    doc.setFontSize(9);
+                    doc.setTextColor(150, 150, 150);
+                    const disclaimer = "DISCLAIMER: This assessment is not a diagnostic tool. It is designed to provide general insight into your mental health status. For clinical concerns, please consult with a qualified mental health professional.";
+                    const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+                    doc.text(splitDisclaimer, 20, y);
+                    
+                    // Add contact information
+                    y += splitDisclaimer.length * 5 + 5;
+                    doc.text("MindLift Mental Health Solutions", 20, y);
+                    y += 4;
+                    doc.text("www.mindliftsolutions.com | support@mindliftsolutions.com", 20, y);
+                    
+                    // Save the PDF as blob
+                    const pdfBlob = doc.output('blob');
+                    resolve(pdfBlob);
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    reject(error);
+                }
+            });
+        }
+        
+        // Function to send report via email
+        async function sendReport() {
+            const submitBtn = document.getElementById('submit-email');
+            const emailInput = document.getElementById('email');
+            const successNotification = document.getElementById('success-notification');
+            const errorNotification = document.getElementById('error-notification');
+            
+            // Hide notifications
+            successNotification.classList.add('hidden');
+            errorNotification.classList.add('hidden');
+            
+            // Validate email
+            if (!emailInput.value) {
+                emailInput.focus();
+                return;
+            }
+            
+            // Show loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+            
+            try {
+                // Generate PDF report
+                const pdfBlob = await generatePDFReport();
+                
+                // Convert PDF to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(pdfBlob);
+                
+                reader.onloadend = async function() {
+                    const base64data = reader.result.split(',')[1];
+                    
+                    // Calculate scores for email body
+                    const scores = calculateScores();
+                    const summaryText = assessmentData.categories.map(cat => {
+                        const interpretation = getInterpretation(cat.id, scores[cat.id].scaled);
+                        return `${cat.title}: ${scores[cat.id].scaled}/100 - ${interpretation.text}`;
+                    }).join('\n');
+                    
+                    // Prepare email data
+                    const formData = {
+                        access_key: "4c7f9a0f-9eab-49a4-94e1-4f7650aac761",
+                        from_name: "MindLift Mental Health Solutions",
+                        subject: "Your Mental Health Assessment Report",
+                        to_email: emailInput.value,
+                        message: `Thank you for completing your mental health assessment with MindLift.\n\nHere is a summary of your results:\n\n${summaryText}\n\nA detailed report is attached to this email.\n\nPlease remember that this assessment is not a diagnostic tool. For clinical concerns, please consult with a qualified mental health professional.`,
+                        attachment: base64data,
+                        attachment_name: "MindLift_Assessment_Report.pdf"
+                    };
+                    
+                    // Send using Web3Forms API
+                    const response = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Show success notification
+                        successNotification.classList.remove('hidden');
+                        
+                        // Reset form
+                        document.getElementById('email-form').reset();
+                        
+                        // Close modal after 5 seconds
+                        setTimeout(() => {
+                            successNotification.classList.add('hidden');
+                            document.getElementById('email-modal').classList.add('hidden');
+                            // Reset button
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }, 5000);
+                    } else {
+                        throw new Error(data.message || 'Unknown error');
+                    }
+                };
+                
+                reader.onerror = function() {
+                    throw new Error('Error reading PDF file');
+                };
+                
+            } catch (error) {
+                console.error('Error sending report:', error);
+                
+                // Show error notification
+                errorNotification.classList.remove('hidden');
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Enhanced interactive elements when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Three.js background
+            initThreeBackground();
+            
+            // Add hover effects to all buttons
+            document.querySelectorAll('.cyber-button').forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    gsap.to(this, {
+                        scale: 1.05,
+                        duration: 0.3,
+                        ease: "power1.out"
+                    });
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    gsap.to(this, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power1.out"
+                    });
+                });
+                
+                // Add click effect
+                button.addEventListener('mousedown', function() {
+                    gsap.to(this, {
+                        scale: 0.95,
+                        duration: 0.1
+                    });
+                });
+                
+                button.addEventListener('mouseup', function() {
+                    gsap.to(this, {
+                        scale: 1.05,
+                        duration: 0.1
+                    });
+                });
+            });
+            
+            // Add particle effect to landing page
+            addParticleEffect();
+        });
+        
+        // Function to add particle effect
+        function addParticleEffect() {
+            const canvas = document.createElement('canvas');
+            canvas.id = 'particle-canvas';
+            canvas.className = 'absolute inset-0 z-0';
+            document.getElementById('landing-container').prepend(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+            
+            // Particle settings
+            const particleCount = 100;
+            const particles = [];
+            
+            // Colors
+            const colors = [
+                '#00c3ff', // primary
+                '#49fee3', // accent
+                '#6566ff', // secondary
+                '#ff6b6b'  // highlight
+            ];
+            
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2 + 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    velocity: {
+                        x: (Math.random() - 0.5) * 0.5,
+                        y: (Math.random() - 0.5) * 0.5
+                    },
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+            
+            // Draw and update particles
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // Update and draw particles
+                for (let i = 0; i < particleCount; i++) {
+                    const p = particles[i];
+                    
+                    // Update position
+                    p.x += p.velocity.x;
+                    p.y += p.velocity.y;
+                    
+                    // Loop positions
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+                    
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color.replace(')', `, ${p.opacity})`).replace('rgb', 'rgba');
+                    ctx.fill();
+                    
+                    // Connect particles
+                    connectParticles(p, i);
+                }
+                
+                requestAnimationFrame(draw);
+            }
+            
+            // Connect nearby particles with lines
+            function connectParticles(p, index) {
+                for (let j = index + 1; j < particleCount; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = p.color.replace(')', `, ${0.1 * (1 - distance / 100)})`).replace('rgb', 'rgba');
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+            
+            draw();
+        }
+        
+        // Add CSS for enhanced UI
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+            /* Enhanced UI Styles */
+            .option-card {
+                transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .option-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            }
+            
+            .option-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+                transition: all 0.6s;
+            }
+            
+            .option-card:hover::before {
+                left: 100%;
+            }
+            
+            .option-card.selected {
+                transform: scale(1.05);
+                z-index: 10;
+                border-width: 2px;
+            }
+            
+            .scan-line {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #00c3ff, transparent);
+                animation: scan 3s linear infinite;
+            }
+            
+            @keyframes scan {
+                0% {
+                    top: 0%;
+                }
+                100% {
+                    top: 100%;
+                }
+            }
+            
+            .glassmorphism {
+                background: rgba(20, 20, 30, 0.6);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+            
+            .chart-background {
+                background: rgba(15, 15, 25, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-shadow: inset 0 0 20px rgba(0, 195, 255, 0.1);
+            }
+            
+            .cyber-button {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s;
+            }
+            
+            .cyber-button:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: all 0.6s;
+            }
+            
+            .cyber-button:hover:before {
+                left: 100%;
+            }
+            
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            
+            .animate-float-slow {
+                animation: float 10s ease-in-out infinite;
+            }
+            
+            .animate-pulse-slow {
+                animation: pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+            
+            /* Radar chart styles */
+            .radar-chart-wrapper {
+                position: relative;
+                height: 350px;
+                width: 100%;
+            }
+            
+            .radar-chart-wrapper::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 50%;
+                box-shadow: 0 0 30px rgba(0, 195, 255, 0.2);
+                pointer-events: none;
+            }
+            
+            /* Progress bar animation */
+            .progress-bar {
+                height: 6px;
+                background: linear-gradient(90deg, #00c3ff, #49fee3);
+                transition: width 0.5s ease;
+                box-shadow: 0 0 8px rgba(0, 195, 255, 0.5);
+                border-radius: 999px;
+            }
+            
+            /* Question font size */
+            h3.text-2xl.md\\:text-3xl {
+                font-size: 1.75rem;
+                line-height: 2.25rem;
+                letter-spacing: 0.02em;
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+            }
+            
+            /* Email modal animation */
+            #email-modal {
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(styleEl);
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+# Add/update these functions in your chatbot.py file
+
+from langchain_groq import ChatGroq
+
+class Chatbot:
+    def __init__(self, api_key="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", model="llama-3.3-70b-versatile"):
+        self.api_key = api_key
+        self.model = model
+        self.llm = ChatGroq(
+            temperature=0,
+            groq_api_key=self.api_key,
+            model_name=self.model
+        )
+        
+    def get_response(self, message):
+        """
+        Get a response from the Groq LLM for the given message.
+        
+        Args:
+            message (str): The user's message
+            
+        Returns:
+            str: The chatbot's response
+        """
+        try:
+            result = self.llm.invoke(message)
+            return result.content
+        except Exception as e:
+            print(f"Error getting response from Groq: {str(e)}")
+            return "I'm sorry, I'm having trouble connecting to my AI service right now."
+    
+    def process_audio_input(self, audio_data):
+        """
+        Process audio input and get a response.
+        
+        Args:
+            audio_data: Audio data from the frontend
+            
+        Returns:
+            dict: Response with transcription and chatbot response
+        """
+        # This would integrate with your audio_analysis.py module
+        from audio_analysis import transcribe_audio
+        
+        try:
+            # Transcribe audio
+            transcription = transcribe_audio(audio_data)
+            
+            # Get response
+            response = self.get_response(transcription)
+            
+            return {
+                "transcription": transcription,
+                "response": response
+            }
+        except Exception as e:
+            print(f"Error processing audio: {str(e)}")
+            return {
+                "error": str(e),
+                "response": "I'm sorry, I couldn't process your audio properly."
+            }
