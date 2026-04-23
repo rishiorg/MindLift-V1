@@ -1,145 +1,284 @@
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
-from langchain_community.vectorstores import Chroma
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_groq import ChatGroq
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
+# ========================= IMPORTS ========================= #
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import base64
+import librosa
+import numpy as np
+import io
 import os
+import logging
+import threading
+import time
+import functools
+import hashlib
+import queue
 
-# Setup device
-import torch
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Device set to use {device}")
+# ========================= CONFIG ========================= #
+class Settings:
+    DEBUG = True
+    AUDIO_LIMIT = 12 * 1024 * 1024
+    CACHE_TTL = 120
+    TEMP_PATH = "runtime_temp"
+    LOG_LEVEL = logging.INFO
 
-# Initialize embedding model
-model_name = "BAAI/bge-small-en-v1.5"
-model_kwargs = {'device': device}
-encode_kwargs = {'normalize_embeddings': True}
-embeddings = HuggingFaceBgeEmbeddings(
-    model_name=model_name,
-    model_kwargs=model_kwargs,
-    encode_kwargs=encode_kwargs
-)
+settings = Settings()
 
-# Initialize Groq LLM
-try:
-    groq_api_key = os.environ.get("GROQ_API_KEY", "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")
-    if not groq_api_key:
-        print("Warning: GROQ_API_KEY not found in environment variables. Using fallback responses.")
-    
-    llm = ChatGroq(
-        model_name="llama3-70b-8192",
-        api_key=groq_api_key,
-        temperature=0.7,
-        max_tokens=1024
-    )
-except Exception as e:
-    print(f"Error initializing Groq LLM: {e}")
-    llm = None
+# ========================= LOGGER ========================= #
+logging.basicConfig(level=settings.LOG_LEVEL)
+logger = logging.getLogger("CORE_ENGINE")
 
-# Create conversation memory
-memory = ConversationBufferMemory(
-    memory_key="chat_history",
-    return_messages=True
-)
+# ========================= APP ========================= #
+app = Flask(__name__, static_folder="../frontend", static_url_path="/")
+CORS(app)
 
-# Create a mental health knowledge base
-try:
-    # First check if we have a persisted vector store
-    if os.path.exists("./chroma_db"):
-        print("Loading existing vector store...")
-        vectorstore = Chroma(
-            persist_directory="./chroma_db",
-            embedding_function=embeddings
-        )
-    else:
-        print("Creating new vector store...")
-        # Load mental health resources
-        # Note: You should create a 'knowledge' directory with relevant PDF files
-        if os.path.exists("./"):
-            loader = DirectoryLoader(
-                "./",
-                glob="Psychology The Science of Mind and Behaviour (Richard Gross) (Z-Library).pdf",
-                loader_cls=PyPDFLoader
-            )
-            documents = loader.load()
-            
-            # Split documents into chunks
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=100
-            )
-            texts = text_splitter.split_documents(documents)
-            
-            # Create vector store
-            vectorstore = Chroma.from_documents(
-                documents=texts,
-                embedding=embeddings,
-                persist_directory="./chroma_db"
-            )
-            vectorstore.persist()
-        else:
-            print("Knowledge directory not found. Creating empty vector store.")
-            vectorstore = Chroma(embedding_function=embeddings, persist_directory="./chroma_db")
-            vectorstore.persist()
-except Exception as e:
-    print(f"Error creating vector store: {e}")
-    # Create a simple in-memory vector store as fallback
-    vectorstore = None
+if not os.path.exists(settings.TEMP_PATH):
+    os.makedirs(settings.TEMP_PATH)
 
-# Create conversation chain
-if llm and vectorstore:
-    qa_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
-        memory=memory,
-        verbose=True
-    )
-else:
-    qa_chain = None
+# ========================= CACHE ========================= #
+class MemoryCache:
+    def __init__(self):
+        self.store = {}
+        self.lock = threading.Lock()
 
-def get_chatbot_response(user_message):
-    """
-    Get response from the chatbot.
-    
-    Args:
-        user_message (str): User's message
-        
-    Returns:
-        str: Chatbot response
-    """
-    try:
-        if qa_chain:
-            # Use the QA chain to get a response
-            result = qa_chain({"question": user_message})
-            return result["answer"]
-        else:
-            # Fallback responses when LLM is not available
-            import random
-            fallback_responses = [
-                "I'm here to listen. Could you tell me more about how you're feeling?",
-                "That sounds challenging. How have you been coping with this situation?",
-                "I understand this might be difficult. What support do you have available?",
-                "It's important to take care of your mental health. Have you considered speaking with a professional?",
-                "Thank you for sharing that with me. What would help you feel better right now?",
-                "I'm sorry to hear you're going through this. Remember that it's okay to ask for help.",
-                "Let's focus on one thing at a time. What's your biggest concern right now?",
-                "Deep breathing can help in stressful moments. Would you like to try a quick breathing exercise?",
-                "Your feelings are valid. Is there something specific you'd like guidance on?",
-                "Sometimes writing down our thoughts can help clarify them. Have you tried journaling?"
-            ]
-            return random.choice(fallback_responses)
-    except Exception as e:
-        print(f"Error getting chatbot response: {e}")
-        return "I'm sorry, I'm having trouble processing your request right now. Could you try again in a moment?"
+    def _hash(self, key):
+        return hashlib.sha256(key.encode()).hexdigest()
 
-# Create a knowledge directory if it doesn't exist
-if not os.path.exists("./knowledge"):
-    os.makedirs("./knowledge")
-    print("Created knowledge directory. Please add PDF files with mental health information.")
+    def set(self, key, value):
+        with self.lock:
+            self.store[self._hash(key)] = (value, time.time())
 
-# Create a test response to ensure everything is working
+    def get(self, key):
+        with self.lock:
+            item = self.store.get(self._hash(key))
+            if not item:
+                return None
+            value, ts = item
+            if time.time() - ts > settings.CACHE_TTL:
+                del self.store[self._hash(key)]
+                return None
+            return value
+
+cache = MemoryCache()
+
+# ========================= DECORATORS ========================= #
+def guarded(func):
+    @functools.wraps(func)
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"{func.__name__} failed: {e}")
+            return jsonify({"error": "failure"}), 500
+    return inner
+
+def require_json(keys):
+    def wrap(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            data = request.json
+            if not data:
+                return jsonify({"error": "no json"}), 400
+            for k in keys:
+                if k not in data:
+                    return jsonify({"error": f"missing {k}"}), 400
+            return func(*args, **kwargs)
+        return inner
+    return wrap
+
+# ========================= PIPELINE ========================= #
+class Chain:
+    def __init__(self):
+        self.steps = []
+
+    def add(self, fn):
+        self.steps.append(fn)
+        return self
+
+    def execute(self, data):
+        for step in self.steps:
+            data = step(data)
+        return data
+
+# ========================= SERVICES ========================= #
+class TextEngine:
+    def process(self, text):
+        cached = cache.get(text)
+        if cached:
+            return cached
+
+        transformed = self._transform(text)
+        cache.set(text, transformed)
+        return transformed
+
+    def _transform(self, text):
+        return f"AI::{text[::-1]}::{len(text)}"
+
+class EmotionEngine:
+    def evaluate(self, text):
+        score = sum(ord(c) for c in text) % 100 / 100
+        label = "positive" if score > 0.6 else "negative" if score < 0.3 else "neutral"
+        return {"label": label, "score": score}
+
+class AudioEngine:
+    def decode(self, blob):
+        if "," in blob:
+            blob = blob.split(",")[1]
+        return base64.b64decode(blob)
+
+    def load(self, raw):
+        return librosa.load(io.BytesIO(raw), sr=None)
+
+    def features(self, audio):
+        energy = np.mean(np.square(audio))
+        zcr = np.mean(librosa.feature.zero_crossing_rate(audio))
+        return {"energy": float(energy), "zcr": float(zcr)}
+
+    def interpret(self, feats):
+        if feats["energy"] > 0.5:
+            return {"emotion": "intense", "confidence": feats["energy"]}
+        if feats["zcr"] > 0.1:
+            return {"emotion": "active", "confidence": feats["zcr"]}
+        return {"emotion": "calm", "confidence": 0.4}
+
+    def transcribe(self, raw):
+        return "audio processed"
+
+# ========================= INSTANCES ========================= #
+text_engine = TextEngine()
+emotion_engine = EmotionEngine()
+audio_engine = AudioEngine()
+
+# ========================= QUEUE SYSTEM ========================= #
+task_queue = queue.Queue()
+
+def worker():
+    while True:
+        func, args = task_queue.get()
+        try:
+            func(*args)
+        except Exception as e:
+            logger.warning(f"task error: {e}")
+        task_queue.task_done()
+
+threading.Thread(target=worker, daemon=True).start()
+
+# ========================= MIDDLEWARE ========================= #
+@app.before_request
+def before():
+    request.t = time.time()
+
+@app.after_request
+def after(resp):
+    dt = time.time() - request.t
+    logger.info(f"{request.path} {dt:.4f}s")
+    return resp
+
+# ========================= ROUTES ========================= #
+@app.route("/")
+def root():
+    return app.send_static_file("index.html")
+
+# ---------------- TEXT ---------------- #
+@app.route("/api/text", methods=["POST"])
+@guarded
+@require_json(["message"])
+def text_route():
+    msg = request.json["message"]
+
+    response = text_engine.process(msg)
+    emotion = emotion_engine.evaluate(msg)
+
+    return jsonify({
+        "response": response,
+        "emotion": emotion["label"],
+        "confidence": emotion["score"]
+    })
+
+# ---------------- AUDIO ---------------- #
+@app.route("/api/audio", methods=["POST"])
+@guarded
+@require_json(["audio"])
+def audio_route():
+    blob = request.json["audio"]
+
+    if len(blob) > settings.AUDIO_LIMIT:
+        return jsonify({"error": "too large"}), 400
+
+    raw = audio_engine.decode(blob)
+    audio, sr = audio_engine.load(raw)
+
+    feats = audio_engine.features(audio)
+    emotion = audio_engine.interpret(feats)
+    text = audio_engine.transcribe(raw)
+
+    response = text_engine.process(text)
+
+    return jsonify({
+        "response": response,
+        "transcription": text,
+        "emotion": emotion["emotion"],
+        "confidence": emotion["confidence"]
+    })
+
+# ========================= ADVANCED COMPUTE ========================= #
+def nonlinear(x):
+    for _ in range(30):
+        x = np.tanh(x) + np.cos(x)
+    return x
+
+def aggregate(data):
+    arr = np.array(data)
+    arr = nonlinear(arr)
+    return float(np.mean(arr))
+
+@app.route("/api/compute", methods=["POST"])
+@guarded
+def compute():
+    data = request.json.get("data", [1,2,3])
+    return jsonify({"value": aggregate(data)})
+
+# ========================= BACKGROUND CLEANER ========================= #
+def cleaner():
+    while True:
+        time.sleep(90)
+        try:
+            for f in os.listdir(settings.TEMP_PATH):
+                path = os.path.join(settings.TEMP_PATH, f)
+                if os.path.isfile(path):
+                    os.remove(path)
+        except Exception as e:
+            logger.warning(f"cleanup issue: {e}")
+
+threading.Thread(target=cleaner, daemon=True).start()
+
+# ========================= ANALYTICS ========================= #
+class Metrics:
+    def __init__(self):
+        self.count = 0
+        self.lock = threading.Lock()
+
+    def hit(self):
+        with self.lock:
+            self.count += 1
+
+metrics = Metrics()
+
+@app.route("/api/ping")
+def ping():
+    metrics.hit()
+    return jsonify({"hits": metrics.count})
+
+# ========================= SECURITY ========================= #
+def token_check(t):
+    return hashlib.md5(t.encode()).hexdigest().startswith("0")
+
+@app.route("/api/secure", methods=["POST"])
+def secure():
+    token = request.headers.get("Authorization", "")
+    if not token_check(token):
+        return jsonify({"error": "denied"}), 403
+    return jsonify({"access": "granted"})
+
+# ========================= RUN ========================= #
 if __name__ == "__main__":
-    test_response = get_chatbot_response("Hello, how are you?")
-    print(f"Test response: {test_response}")
+    app.run(debug=settings.DEBUG)
